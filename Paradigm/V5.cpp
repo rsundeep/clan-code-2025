@@ -5,6 +5,9 @@
 #include <functional>
 #include <cctype>
 
+//Functional programing is performing the task from by calling a function which calls another function, it calls another function
+//Here we are doing abstraction of functions for ease of testability, this is different from Test driven development.
+
 // Generic search function using a strategy - works with any type T
 template<typename T>
 std::vector<T> searchItems(
@@ -28,12 +31,14 @@ void printItems(const std::vector<T>& items) {
     }
 }
 
-// Function returns a strategy to check if a string starts with a given character
-std::function<bool(const std::string&)> checkStringStartsWithGivenChar(char startChar) {
+// Function returns a strategy to check if a string starting or ending with a given character
+std::function<bool(const std::string&)> checkStringStartingOrEndingWithGivenChar(char startChar, bool starting) {
     return [startChar](const std::string& name) {
-        return !name.empty() && std::tolower(name[0]) == std::tolower(startChar);
+        if(starting == true)
+            return !name.empty() && std::tolower(name[0]) == std::tolower(startChar);
+        else
+           return !name.empty() && std::tolower(name[name.length()-1]) == std::tolower(startChar); 
     };
-}
 
 int main() {
     std::vector<std::string> names = {
@@ -42,16 +47,22 @@ int main() {
 
     // Example 1: Search names starting with 's'
     char startChar = 's';
-    auto startsWithS = checkStringStartsWithGivenChar(startChar);
+    auto startsWithS = checkStringStartingOrEndingWithGivenChar(startChar, True);
     auto filteredStart = searchItems(names, startsWithS);
     std::cout << "Names starting with '" << startChar << "':\n";
     printItems(filteredStart);
 
     // Example 2: Search names starting with 'M'
-    auto startsWithM = checkStringStartsWithGivenChar('M');
+    auto startsWithM = checkStringStartingOrEndingWithGivenChar('M', True);
     auto filteredM = searchItems(names, startsWithM);
     std::cout << "Names starting with 'M':\n";
     printItems(filteredM);
 
+    // Example 3: Search names ending with 'M'
+    auto endsWithM = checkStringStartingOrEndingWithGivenChar('M', false);
+    auto filteredM = searchItems(names, endsWithM);
+    std::cout << "Names ending with 'M':\n";
+    printItems(filteredM);
+    
     return 0;
 }
